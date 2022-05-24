@@ -5,6 +5,7 @@ import requests
 import aiohttp
 import asyncio
 import tabulate
+import html
 import re
 from discord.ext import commands
 from datetime import datetime
@@ -28,15 +29,19 @@ async def on_ready():
 
 @client.command()
 async def kalenderakademik(ctx):
-    r = requests.get(
-        f'http://47.254.238.244/kalenderakademik', headers=headers)
+    r = requests.get(f'http://47.254.238.244/kalenderakademik', headers=headers)
 
     if r.status_code == 200:
-        r = json.loads(r.text)
+        r1 = re.search(r"(.*?)<\/table>", r.text, re.S)
+        r = re.findall(r"<tr.*?>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>", r1.group(1), re.S)
+        result = []
+        for row in r:
+            result.append(", ".join(map(html.unescape, row)))
+        result_plain = "\n".join(result)
         embed = discord.Embed(
             title=':book: Kalender Akademik',
             colour=discord.Color.green(),
-            description=f'''{r['data']}''')
+            description=f'''{result_plain}''')
         embed.timestamp = datetime.utcnow()
         await ctx.send(embed=embed)
         return
@@ -55,10 +60,11 @@ async def jadkul(ctx, oid):
     r = requests.get('https://baak.gunadarma.ac.id/jadwal/cariJadKul', headers=headers, params={'teks': oid})
 
     if r.status_code == 200:
-        r = re.findall(r"<tr.*?>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>", r.text, re.S)
+        r1 = re.search(r"(.*?)<\/table>", r.text, re.S)
+        r = re.findall(r"<tr.*?>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>", r1.group(1), re.S)
         result = []
         for row in r:
-            result.append(", ".join(row))
+            result.append(", ".join(map(html.unescape, row)))
         result_plain = "\n".join(result)
         embed = discord.Embed(
             title=':book: Jadwal Kuliah',
