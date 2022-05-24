@@ -33,11 +33,14 @@ async def kalenderakademik(ctx):
         """Yield successive n-sized chunks from lst."""
         for i in range(0, len(lst), n):
             yield lst[i:i + n]
-        
-    r = requests.get(f'http://47.254.238.244/kalenderakademik', headers=headers)
 
-    if r.status_code == 200:
-        js = r.json()
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f'http://47.254.238.244/kalenderakademik', headers=headers) as resp:
+            status = resp.status
+            if status == 200:
+                js = await resp.json()
+
+    if status == 200:
         rez = []
         for key, value in js["data"].items():
             rez.append(f"**{key}**")
@@ -65,11 +68,16 @@ async def kalenderakademik(ctx):
 
 @client.command()
 async def jadkul(ctx, oid):
-    r = requests.get('https://baak.gunadarma.ac.id/jadwal/cariJadKul', headers=headers, params={'teks': oid})
+    async with aiohttp.ClientSession() as session:
+        async with session.get('https://baak.gunadarma.ac.id/jadwal/cariJadKul', headers=headers, params={'teks': oid}) as resp:
+            status = resp.status
+            if status == 200:
+                text = await resp.text()
 
-    if r.status_code == 200:
-        r1 = re.search(r"(.*?)<\/table>", r.text, re.S)
-        r = re.findall(r"<tr.*?>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>", r1.group(1), re.S)
+    if status == 200:
+        r1 = re.search(r"(.*?)<\/table>", text, re.S)
+        r = re.findall(
+            r"<tr.*?>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>", r1.group(1), re.S)
         result = []
         for row in r:
             result.append(", ".join(map(html.unescape, row)))
@@ -93,15 +101,21 @@ async def jadkul(ctx, oid):
 
 @client.command()
 async def mhsbaru(ctx, oid):
-    r = requests.get(f'https://baak.gunadarma.ac.id/cariMhsBaru', headers=headers, params={'teks': oid})
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f'https://baak.gunadarma.ac.id/cariMhsBaru', headers=headers, params={"teks": oid, "tipeMhsBaru": "Kelas"}) as resp:
+            status = resp.status
+            if status == 200:
+                text = await resp.text()
 
-    if r.status_code == 200:
-        r1 = re.search(r"(.*?)<\/table>", r.text, re.S)
-        r = re.findall(r"<tr.*?>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>", r1.group(1), re.S)
+    if status == 200:
+        r1 = re.search(r"(.*?)<\/table>", text, re.S)
+        r = re.findall(
+            r"<tr.*?>.*?<td.*?>([^<]*?)<\/td>.*?<td.*?>([^<]*?)<\/td>.*?<td.*?>([^<]*?)<\/td>.*?<td.*?>([^<]*?)<\/td>.*?<td.*?>([^<]*?)<\/td>.*?<td.*?>([^<]*?)<\/td>", r1.group(1), re.S)
         result = []
         for row in r:
             result.append(", ".join(map(html.unescape, row)))
         result_plain = "\n".join(result)
+
         embed = discord.Embed(
             title=':book: Info Mahasiswa Baru',
             colour=discord.Color.green(),
@@ -121,15 +135,17 @@ async def mhsbaru(ctx, oid):
 
 @client.command()
 async def kelasbaru(ctx, oid):
-    r = requests.get(
-        f'http://47.254.238.244/kelasbaru/kelas/{oid}', headers=headers)
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f'http://47.254.238.244/kelasbaru/kelas/{oid}', headers=headers) as resp:
+            status = resp.status
+            if status == 200:
+                js = await resp.json()
 
-    if r.status_code == 200:
-        r = json.loads(r.text)
+    if status == 200:
         embed = discord.Embed(
             title=':book: Info Mahasiswa Kelas 2 Baru',
             colour=discord.Color.green(),
-            description=f'''{r['data']}''')
+            description=f'''{js['data']}''')
         embed.timestamp = datetime.utcnow()
         await ctx.send(embed=embed)
         return
