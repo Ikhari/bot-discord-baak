@@ -23,7 +23,7 @@ headers = {
 async def on_ready():
     print('Connected to bot: {}'.format(client.user.name))
     print('Bot ID: {}'.format(client.user.id))
-    print('Bot is Running...')
+    print('Bot is Running....')
 
 
 @client.command()
