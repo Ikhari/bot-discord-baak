@@ -29,15 +29,15 @@ async def on_ready():
 
 @client.command()
 async def kalenderakademik(ctx):
-    r = requests.get(f'http://47.254.238.244/kalenderakademik', headers=headers)
+    r = requests.get(f'https://baak.gunadarma.ac.id', headers=headers)
 
     if r.status_code == 200:
-        r1 = re.search(r"(.*?)<\/table>", r.text, re.S)
-        r = re.findall(r"<tr.*?>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>", r1.group(1), re.S)
-        result = []
-        for row in r:
-            result.append(", ".join(map(html.unescape, row)))
-        result_plain = "\n".join(result)
+        js = r.json()
+        rez = []
+        for key, value in js["data"].items():
+            rez.append(f"**{key}**")
+            rez.extend(value)
+        result_plain = "\n".join(rez)
         embed = discord.Embed(
             title=':book: Kalender Akademik',
             colour=discord.Color.green(),
@@ -85,15 +85,19 @@ async def jadkul(ctx, oid):
 
 @client.command()
 async def mhsbaru(ctx, oid):
-    r = requests.get(
-        f'http://47.254.238.244/mhsbaru/nama/{oid}', headers=headers)
+    r = requests.get(f'https://baak.gunadarma.ac.id/cariMhsBaru', headers=headers, params={'teks': oid})
 
     if r.status_code == 200:
-        r = json.loads(r.text)
+        r1 = re.search(r"(.*?)<\/table>", r.text, re.S)
+        r = re.findall(r"<tr.*?>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>", r1.group(1), re.S)
+        result = []
+        for row in r:
+            result.append(", ".join(map(html.unescape, row)))
+        result_plain = "\n".join(result)
         embed = discord.Embed(
             title=':book: Info Mahasiswa Baru',
             colour=discord.Color.green(),
-            description=f'''{r['data']}''')
+            description=f'''{result_plain}''')
         embed.timestamp = datetime.utcnow()
         await ctx.send(embed=embed)
         return
@@ -125,7 +129,7 @@ async def kelasbaru(ctx, oid):
         embed = discord.Embed(
             title=':x: Error!',
             colour=discord.Color.red(),
-            description=f'Cek Kembali Commandnya! Jika diyakinkan benar maka ada kemungkinan server BAAK down.')
+            description=f'Cek Kembali Commandnya! Jika diyakinkan benar maka ada kemungkinan server BAAK sedang Down.')
         embed.timestamp = datetime.utcnow()
         await ctx.send(embed=embed)
         return
