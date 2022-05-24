@@ -99,7 +99,7 @@ async def jadkul(ctx, oid):
         return
 
 @client.command()
-async def mhsbaru(ctx, oid):
+async def mhsbarukls(ctx, oid):
     async with aiohttp.ClientSession() as session:
         async with session.get(f'https://baak.gunadarma.ac.id/cariMhsBaru', headers=headers, params={"teks": oid, "tipeMhsBaru": "Kelas"}) as resp:
             status = resp.status
@@ -197,7 +197,8 @@ async def help(ctx):
         description=f'''
 .kalenderakademik - Info Kalender Akademik
 .jadkul (Kelas) - Cek Jadwal Kuliah
-.mhsbaru (Nama) - Info Mahasiswa Baru
+.mhsbaru (Nama) - Info Mahasiswa Baru Berdasarkan Nama
+.mhsbarukls (Kelas) - Info Mahasiswa Baru Berdasarkan Kelas
 .kelasbaru (Kelas) - Info Mahasiswa Kelas 2 Baru
 ''')
     embed.timestamp = datetime.utcnow()
