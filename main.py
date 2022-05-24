@@ -2,9 +2,14 @@ import discord
 import datetime
 import json
 import requests
+import aiohttp
+import asyncio
 import tabulate
+import re
 from discord.ext import commands
 from datetime import datetime
+from bs4 import BeautifulSoup
+from aiofile import AIOFile
 
 client = commands.Bot(command_prefix='.')
 client.remove_command('help')
@@ -47,14 +52,18 @@ async def kalenderakademik(ctx):
 
 @client.command()
 async def jadkul(ctx, oid):
-    r = requests.get(f'http://47.254.238.244/jadkul/{oid}', headers=headers)
+    r = requests.get('https://baak.gunadarma.ac.id/jadwal/cariJadKul', headers=headers, params={'teks': oid})
 
     if r.status_code == 200:
-        r = json.loads(r.text)
+        r = re.findall(r"<tr.*?>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>", r.text, re.S)
+        result = []
+        for row in r:
+            result.append(", ".join(row))
+        result_plain = "\n".join(result)
         embed = discord.Embed(
             title=':book: Jadwal Kuliah',
             colour=discord.Color.green(),
-            description=f'''{r['data']}''')
+            description=f'''{result_plain}''')
         embed.timestamp = datetime.utcnow()
         await ctx.send(embed=embed)
         return
