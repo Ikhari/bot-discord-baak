@@ -29,14 +29,22 @@ async def on_ready():
 
 @client.command()
 async def kalenderakademik(ctx):
-    r = requests.get(f'https://baak.gunadarma.ac.id', headers=headers)
+    def chunks(lst, n):
+        """Yield successive n-sized chunks from lst."""
+        for i in range(0, len(lst), n):
+            yield lst[i:i + n]
+        
+    r = requests.get(f'http://47.254.238.244/kalenderakademik', headers=headers)
 
     if r.status_code == 200:
         js = r.json()
         rez = []
         for key, value in js["data"].items():
             rez.append(f"**{key}**")
-            rez.extend(value)
+            rez2 = []
+            for v1, v2 in chunks(value, 2):
+                rez2.append(f"{v2.replace('&ndash;','-')}: {v1}")
+            rez.extend(rez2)
         result_plain = "\n".join(rez)
         embed = discord.Embed(
             title=':book: Kalender Akademik',
