@@ -74,10 +74,9 @@ async def jadkul(ctx, oid):
             if status == 200:
                 text = await resp.text()
 
-    if status == 200:
-        r1 = re.search(r"(.*?)<\/table>", text, re.S)
-        r = re.findall(
-            r"<tr.*?>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>", r1.group(1), re.S)
+    r1 = re.search(r"(.*?)<\/table>", text, re.S)
+    if status == 200 and r1 is not None:
+        r = re.findall(r"<tr.*?>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>.*?<td.*?>([^<]*?)</td>", r1.group(1), re.S)
         result = []
         for row in r:
             result.append(", ".join(map(html.unescape, row)))
@@ -106,8 +105,8 @@ async def mhsbarukls(ctx, oid):
             if status == 200:
                 text = await resp.text()
 
-    if status == 200:
-        r1 = re.search(r"(.*?)<\/table>", text, re.S)
+    r1 = re.search(r"(.*?)<\/table>", text, re.S)
+    if status == 200 and r1 is not None:
         r = re.findall(
             r"<tr.*?>.*?<td.*?>([^<]*?)<\/td>.*?<td.*?>([^<]*?)<\/td>.*?<td.*?>([^<]*?)<\/td>.*?<td.*?>([^<]*?)<\/td>.*?<td.*?>([^<]*?)<\/td>.*?<td.*?>([^<]*?)<\/td>", r1.group(1), re.S)
         result = []
@@ -138,8 +137,8 @@ async def mhsbaru(ctx, oid):
             if status == 200:
                 text = await resp.text()
 
-    if status == 200:
-        r1 = re.search(r"(.*?)<\/table>", text, re.S)
+    r1 = re.search(r"(.*?)<\/table>", text, re.S)
+    if status == 200 and r1 is not None:
         r = re.findall(
             r"<tr.*?>.*?<td.*?>([^<]*?)<\/td>.*?<td.*?>([^<]*?)<\/td>.*?<td.*?>([^<]*?)<\/td>.*?<td.*?>([^<]*?)<\/td>.*?<td.*?>([^<]*?)<\/td>.*?<td.*?>([^<]*?)<\/td>", r1.group(1), re.S)
         result = []
