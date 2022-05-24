@@ -98,7 +98,6 @@ async def jadkul(ctx, oid):
         await ctx.send(embed=embed)
         return
 
-
 @client.command()
 async def mhsbaru(ctx, oid):
     async with aiohttp.ClientSession() as session:
@@ -115,7 +114,38 @@ async def mhsbaru(ctx, oid):
         for row in r:
             result.append(", ".join(map(html.unescape, row)))
         result_plain = "\n".join(result)
+        embed = discord.Embed(
+            title=':book: Info Mahasiswa Baru',
+            colour=discord.Color.green(),
+            description=f'''{result_plain}''')
+        embed.timestamp = datetime.utcnow()
+        await ctx.send(embed=embed)
+        return
+    else:
+        embed = discord.Embed(
+            title=':x: Error!',
+            colour=discord.Color.red(),
+            description=f'Cek Kembali Commandnya! Jika diyakinkan benar maka ada kemungkinan server down.')
+        embed.timestamp = datetime.utcnow()
+        await ctx.send(embed=embed)
+        return
 
+@client.command()
+async def mhsbaru(ctx, oid):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f'https://baak.gunadarma.ac.id/cariMhsBaru', headers=headers, params={"teks": oid, "tipeMhsBaru": "Nama"}) as resp:
+            status = resp.status
+            if status == 200:
+                text = await resp.text()
+
+    if status == 200:
+        r1 = re.search(r"(.*?)<\/table>", text, re.S)
+        r = re.findall(
+            r"<tr.*?>.*?<td.*?>([^<]*?)<\/td>.*?<td.*?>([^<]*?)<\/td>.*?<td.*?>([^<]*?)<\/td>.*?<td.*?>([^<]*?)<\/td>.*?<td.*?>([^<]*?)<\/td>.*?<td.*?>([^<]*?)<\/td>", r1.group(1), re.S)
+        result = []
+        for row in r:
+            result.append(", ".join(map(html.unescape, row)))
+        result_plain = "\n".join(result)
         embed = discord.Embed(
             title=':book: Info Mahasiswa Baru',
             colour=discord.Color.green(),
