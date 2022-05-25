@@ -46,7 +46,7 @@ async def kalenderakademik(ctx):
             rez.append(f"**{key}**")
             rez2 = []
             for v1, v2 in chunks(value, 2):
-                rez2.append(f"{v2.replace('&ndash;','-')}: {v1}")
+                rez2.append(f"{v2.replace('&ndash;','-')}:\t {v1}")
             rez.extend(rez2)
         result_plain = "\n".join(rez)
         embed = discord.Embed(
@@ -146,7 +146,9 @@ async def mhsbaru(ctx, oid):
         embed = discord.Embed(
             title=':book: Info Mahasiswa Baru',
             colour=discord.Color.green(),
-            description=f'''{result_plain}''')
+            description=f"""```
+                    { tabulate.tabulate([result_plain]) }
+                    ```""")
         embed.timestamp = datetime.utcnow()
         await ctx.send(embed=embed)
         return
